@@ -1,15 +1,22 @@
 #!/bin/bash
-cleanup() {
-	trap cleanup SIGINT
 echo "Enter the project name:"
 read PROJECT_NAME 
 DIR="attendance_tracker_${PROJECT_NAME}"
-	ARCHIVE="attendance_tracker_${PROJECT_NAME}_aechive.tar.gz"
+cleanup() {
+	echo ""
+	echo "[TRAP] ctrl+c detected! Archiving..."
+	if [ -d "$DIR" ]; then 
+	ARCHIVE="attendance_tracker_${PROJECT_NAME}_archive.tar.gz"
 	tar -czf "$ARCHIVE" "$DIR" 2>/dev/null
 	rm -rf "$DIR" 
+	echo "[TRAP] Archive created and folder deleted"
+else
+	echo "[TRAP] Nothing to archive"
+	fi
 	exit 1
 }
-trap cleanup SIGINT 
+trap 'cleanup' SIGINT
+set -e
 if [ -d "$DIR" ]; then
 	echo "Folder already exists. Replace it? (y/n)"
 	read CONFIRM
@@ -30,7 +37,14 @@ read UPDATE_CONFIG
 if [ "$UPDATE_CONFIG" = "y" ]; then 
 	echo "New WARNING value (default 75):"
 	read WARNING_VAL
-	[[ "$WARNING_VAL" =~ ^[0-9]+$ ]] || WARNING_VAL=75
+	if ! [[ "$WARNING_VAL" =~ ^[0-9]+$ ]]; then
+	       	WARNING_VAL=75
+	fi
+	echo "New FAILURE value (default 50):"
+	read FAILURE_VAL
+	if ! [[ "$FAILURE_VAL" =~ ^[0-9]+$ ]]; then 
+		FAILURE_VAL=50
+	fi
 sed -i "s/\"warning\": [0-9]*/\"warning\": $WARNING_VAL/" "$DIR/Helpers/config.json"
     sed -i "s/\"failure\": [0-9]*/\"failure\": $FAILURE_VAL/" "$DIR/Helpers/config.json"
 fi
@@ -39,6 +53,12 @@ if python3 --version 2>/dev/null; then
 else
 	echo "WARNING: Python3 is not installed"
 fi 
+REQUIRED_FILES=(
+	"$DIR/attendance_checker.py"
+	"$DIR/Helpers/assets.csv"
+	"$DIR/Helpers/config.json"
+	"$DIR/reports/reports.log"
+)
 for FILE in "${REQUIRED_FILES[@]}"; do
 	if [ -f "$FILE" ]; then 
 		echo "FOUND: $FILE"

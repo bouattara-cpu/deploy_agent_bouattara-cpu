@@ -25,13 +25,15 @@ if [ -d "$DIR" ]; then
 else
 exit 0
 	fi 
-fi 
+fi
+echo "Creating project folders..."
 mkdir -p "$DIR/Helpers"
 mkdir -p "$DIR/reports"
 cp attendance_checker.py "$DIR/attendance_checker.py"
 cp assets.csv "$DIR/Helpers/assets.csv"
 cp config.json "$DIR/Helpers/config.json"
 cp reports.log "$DIR/reports/reports.log"
+echo "Files copied."
 echo "Update thresholds? (y/n)"
 read UPDATE_CONFIG
 if [ "$UPDATE_CONFIG" = "y" ]; then 
@@ -47,7 +49,9 @@ if [ "$UPDATE_CONFIG" = "y" ]; then
 	fi
 sed -i "s/\"warning\": [0-9]*/\"warning\": $WARNING_VAL/" "$DIR/Helpers/config.json"
     sed -i "s/\"failure\": [0-9]*/\"failure\": $FAILURE_VAL/" "$DIR/Helpers/config.json"
+    echo "Thresholds updated: Warning=$WARNING_VAL% / Failure=$FAILURE_VAL%"
 fi
+echo "Running health check..."
 if python3 --version 2>/dev/null; then
 	echo "Python3 is installed."
 else

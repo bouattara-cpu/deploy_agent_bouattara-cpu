@@ -31,3 +31,5 @@ attendance_tracker_bouattara-cpu/
 ## Requirements
 - Bash shell
 - Python3 installed    
+## Video Walkthrough
+[Click here to watch the video](https://drive.google.com/file/d/1Punq04pfNo2bbE6hYM67WXstp7ymZTBc/view?usp=drive_link) 
